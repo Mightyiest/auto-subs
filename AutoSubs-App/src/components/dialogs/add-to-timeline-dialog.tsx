@@ -56,7 +56,7 @@ interface AddToTimelineDialogProps {
         presetSettings?: Record<string, unknown>,
     ) => Promise<void>
     isAdding?: boolean
-    selectedIntegration?: "davinci" | "premiere" | "aftereffects"
+    selectedIntegration?: "davinci" | "premiere" | "aftereffects" | "cavalry"
 }
 
 const STEPS = [
@@ -78,6 +78,7 @@ export function AddToTimelineDialog({
     selectedIntegration,
 }: AddToTimelineDialogProps) {
     const isAdobe = selectedIntegration === "premiere" || selectedIntegration === "aftereffects"
+    const isCavalry = selectedIntegration === "cavalry"
     const { t } = useTranslation()
     const { speakers, updateSpeakers, currentSubtitleDocumentFilename } = useSubtitleDocument()
     const { updateSetting } = useSettings()
@@ -109,14 +110,14 @@ export function AddToTimelineDialog({
     const hasSpeakers = speakers.length > 0
     const activeSteps = React.useMemo<ReadonlyArray<typeof STEPS[number]>>(
         () => {
-            if (isAdobe) {
-                // Adobe apps (Premiere/AE) handle tracks and templates automatically or differently.
+            if (isAdobe || isCavalry) {
+                // Adobe and Cavalry handle tracks and templates automatically/differently.
                 // We only show the speakers step if available, otherwise it goes straight to submit.
                 return hasSpeakers ? [STEPS[2]] : []
             }
             return hasSpeakers ? STEPS : [STEPS[0], STEPS[1]]
         },
-        [hasSpeakers, isAdobe],
+        [hasSpeakers, isAdobe, isCavalry],
     )
     const totalSteps = activeSteps.length
 
@@ -158,7 +159,7 @@ export function AddToTimelineDialog({
     }, [open])
 
     React.useEffect(() => {
-        if (!open || isAdobe || templatesLoaded || templatesLoading || !onLoadTemplates) return
+        if (!open || isAdobe || isCavalry || templatesLoaded || templatesLoading || !onLoadTemplates) return
         let cancelled = false
         onLoadTemplates().catch((err) => {
             if (cancelled) return
@@ -179,7 +180,7 @@ export function AddToTimelineDialog({
     }
 
     React.useEffect(() => {
-        if (!open || !currentSubtitleDocumentFilename || !selection.outputTrack) {
+        if (!open || isAdobe || isCavalry || !currentSubtitleDocumentFilename || !selection.outputTrack) {
             return
         }
         let cancelled = false
@@ -295,7 +296,7 @@ export function AddToTimelineDialog({
     }
 
     function canProceed(): boolean {
-        if (isAdobe) return true
+        if (isAdobe || isCavalry) return true
         const stepKey = activeSteps[currentStep]?.key
         if (stepKey === "template") {
             if (selection.mode === "regular") return !!selection.templateValue
@@ -343,7 +344,7 @@ export function AddToTimelineDialog({
                             </div>
                             <div className="space-y-1">
                                 <p className="text-lg font-medium">{t("addToTimeline.ready.title")}</p>
-                                <p className="text-sm text-muted-foreground">{t("addToTimeline.ready.description", { app: selectedIntegration === 'aftereffects' ? 'After Effects' : 'Premiere Pro' })}</p>
+                                <p className="text-sm text-muted-foreground">{t("addToTimeline.ready.description", { app: selectedIntegration === 'aftereffects' ? 'After Effects' : (selectedIntegration === 'cavalry' ? 'Cavalry' : 'Premiere Pro') })}</p>
                             </div>
                         </div>
                     )}

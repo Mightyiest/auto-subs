@@ -31,6 +31,7 @@ mod transcript_types;
 mod logging;
 mod resolve_bridge;
 mod adobe_bridge;
+mod cavalry_bridge;
 mod cli;
 #[cfg(target_os = "macos")]
 mod traffic_lights;
@@ -483,6 +484,8 @@ fn main() {
             logging::open_log_dir,
             resolve_bridge::resolve_bridge,
             adobe_bridge::send_to_adobe,
+            cavalry_bridge::cavalry_bridge_send,
+            cavalry_bridge::cavalry_bridge_status,
             trigger_install_update,
             audio_preprocess::extract_audio_peaks,
             cli::cli_command_status,

@@ -70,6 +70,10 @@
       "txt": {
         "title": "Transcript (.txt)",
         "description": "Plain text export for LLMs that includes speaker labels when available."
+      },
+      "csv": {
+        "title": "Cavalry CSV (.csv)",
+        "description": "Export spreadsheet with frame rate boundaries tailored for Cavalry spreadsheet rigs."
       }
     }
   },
@@ -475,6 +479,16 @@
         "canGetAudio": "Ready to add subtitles.",
         "disconnected": "Extension disconnected",
         "openAfterEffects": "Open After Effects to connect automatically."
+      }
+    },
+    "cavalry": {
+      "productName": "Cavalry",
+      "description": "Procedural animation bridge",
+      "tooltip": {
+        "connected": "Connected",
+        "canGetAudio": "Ready to send subtitles.",
+        "cantConnect": "Bridge offline",
+        "openCavalry": "Open Cavalry and run the AutoSubs bridge script."
       }
     }
   },

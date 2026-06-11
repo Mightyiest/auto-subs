@@ -9,6 +9,7 @@ import { ErrorDialogProvider } from './ErrorDialogContext';
 import { IntegrationProvider } from './IntegrationContext';
 
 import { AdobeProvider } from './AdobeContext';
+import { CavalryProvider } from './CavalryContext';
 
 interface GlobalProviderProps {
   children: React.ReactNode;
@@ -50,13 +51,15 @@ export function EditorWorkspaceProviders({ children }: EditorWorkspaceProvidersP
   return (
     <ResolveProvider>
       <AdobeProvider>
-        <SubtitleDocumentProvider>
-          <ProgressProvider>
-            <PresetsProvider>
-              {children}
-            </PresetsProvider>
-          </ProgressProvider>
-        </SubtitleDocumentProvider>
+        <CavalryProvider>
+          <SubtitleDocumentProvider>
+            <ProgressProvider>
+              <PresetsProvider>
+                {children}
+              </PresetsProvider>
+            </ProgressProvider>
+          </SubtitleDocumentProvider>
+        </CavalryProvider>
       </AdobeProvider>
     </ResolveProvider>
   );

@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useResolve } from "@/contexts/ResolveContext";
 import { useAdobe } from "@/contexts/AdobeContext";
+import { useCavalry } from "@/contexts/CavalryContext";
 import {
   useIntegration,
   type Integration,
@@ -28,6 +29,7 @@ export function IntegrationStatus() {
     refresh: refreshAdobe,
   } = useAdobe();
   const { selectedIntegration, setSelectedIntegration } = useIntegration();
+  const { isConnected: isCavalryConnected, refresh: refreshCavalry, timelineInfo: cavalryTimeline } = useCavalry();
 
   const isResolveConnected = Boolean(resolveTimeline?.timelineId);
   const integrations = {
@@ -72,6 +74,20 @@ export function IntegrationStatus() {
         ? t("titlebar.aftereffects.tooltip.canGetAudio")
         : t("titlebar.aftereffects.tooltip.openAfterEffects"),
       refresh: refreshAdobe,
+    },
+    cavalry: {
+      productName: t("titlebar.cavalry.productName"),
+      logo: "/cavalry-logo.png",
+      connected: isCavalryConnected,
+      timelineName: cavalryTimeline?.name,
+      projectName: cavalryTimeline?.projectName,
+      description: t("titlebar.cavalry.description"),
+      connectedText: t("titlebar.cavalry.tooltip.connected"),
+      disconnectedText: t("titlebar.cavalry.tooltip.disconnected"),
+      helperText: isCavalryConnected
+        ? t("titlebar.cavalry.tooltip.canGetAudio")
+        : t("titlebar.cavalry.tooltip.openCavalry"),
+      refresh: refreshCavalry,
     },
   } satisfies Record<
     Integration,

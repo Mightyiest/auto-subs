@@ -58,7 +58,8 @@ export const DEFAULT_SETTINGS: Settings = {
   selectedInputTracksByApp: {
     "davinci": ["1"],
     "premiere": [],
-    "aftereffects": []
+    "aftereffects": [],
+    "cavalry": []
   },
   selectedOutputTrack: "1",
   selectedTemplate: { value: "Default Template", label: "Default Template" },
@@ -106,10 +107,11 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
             ...storedSettings,
             // Migration: if selectedInputTracksByApp doesn't exist but selectedInputTracks does,
             // use it for both davinci and premiere to preserve user state.
-            selectedInputTracksByApp: storedSettings.selectedInputTracksByApp || {
-              "davinci": storedSettings.selectedInputTracks || ["1"],
-              "premiere": storedSettings.selectedInputTracks || [],
-              "aftereffects": []
+            selectedInputTracksByApp: {
+              "davinci": (storedSettings.selectedInputTracksByApp && storedSettings.selectedInputTracksByApp.davinci) || storedSettings.selectedInputTracks || ["1"],
+              "premiere": (storedSettings.selectedInputTracksByApp && storedSettings.selectedInputTracksByApp.premiere) || storedSettings.selectedInputTracks || [],
+              "aftereffects": (storedSettings.selectedInputTracksByApp && storedSettings.selectedInputTracksByApp.aftereffects) || [],
+              "cavalry": (storedSettings.selectedInputTracksByApp && storedSettings.selectedInputTracksByApp.cavalry) || []
             },
             uiLanguage: storedSettings.onboardingCompleted
               ? normalizeUiLanguage(storedSettings.uiLanguage)

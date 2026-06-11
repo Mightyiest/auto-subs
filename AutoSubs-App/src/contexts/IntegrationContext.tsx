@@ -1,7 +1,7 @@
 import React, { createContext, useContext } from 'react';
 import { useSettings } from '@/contexts/SettingsContext';
 
-export type Integration = "davinci" | "premiere" | "aftereffects";
+export type Integration = "davinci" | "premiere" | "aftereffects" | "cavalry";
 
 interface IntegrationContextType {
   selectedIntegration: Integration;

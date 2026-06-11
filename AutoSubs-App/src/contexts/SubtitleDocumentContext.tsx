@@ -17,6 +17,7 @@ import {
 } from '../utils/file-utils';
 import { reformatSubtitles as rustReformatSubtitles } from '@/api/formatting-api';
 import { generateSrt, parseSrt } from '@/utils/srt-utils';
+import { generateCavalryCsv } from '@/utils/csv-utils';
 import { loadFontForLanguage } from '@/lib/font-loader';
 
 interface SubtitleDocumentContextType {
@@ -32,7 +33,7 @@ interface SubtitleDocumentContextType {
   flushPendingSubtitleSave: () => Promise<void>;
   processTranscriptionResults: (transcript: any, settings: Settings, fileInput: string | null, timelineId: string) => Promise<string>;
   reformatSubtitles: (settings: Settings, fileInput: string | null, timelineId: string) => Promise<void>;
-  exportSubtitlesAs: (format: 'srt' | 'txt', subtitles?: Subtitle[], speakers?: Speaker[]) => Promise<void>;
+  exportSubtitlesAs: (format: 'srt' | 'txt' | 'csv', subtitles?: Subtitle[], speakers?: Speaker[]) => Promise<void>;
   importSubtitles: (settings: Settings, fileInput: string | null, timelineId: string) => Promise<void>;
   loadSubtitles: (audioInputMode: "file" | "timeline", fileInput: string | null, timelineId: string) => Promise<void>;
 }
@@ -235,7 +236,7 @@ export function SubtitleDocumentProvider({ children }: { children: React.ReactNo
   };
 
   async function exportSubtitlesAs(
-    format: 'srt' | 'txt', 
+    format: 'srt' | 'txt' | 'csv', 
     subtitlesParam?: Subtitle[],
     speakersParam?: Speaker[]
   ) {
@@ -247,10 +248,10 @@ export function SubtitleDocumentProvider({ children }: { children: React.ReactNo
         throw new Error('No subtitles available to export');
       }
 
-      const defaultPath = format === 'srt' ? 'subtitles.srt' : 'transcript.txt';
+      const defaultPath = format === 'srt' ? 'subtitles.srt' : (format === 'csv' ? 'cavalry_subtitles.csv' : 'transcript.txt');
       const filters = format === 'srt'
         ? [{ name: 'SRT Files', extensions: ['srt'] }]
-        : [{ name: 'Text Files', extensions: ['txt'] }];
+        : (format === 'csv' ? [{ name: 'CSV Files', extensions: ['csv'] }] : [{ name: 'Text Files', extensions: ['txt'] }]);
 
       const filePath = await save({
         defaultPath,
@@ -287,6 +288,14 @@ export function SubtitleDocumentProvider({ children }: { children: React.ReactNo
 
         await writeTextFile(filePath, srtData);
         console.log('SRT file saved successfully to', filePath);
+      } else if (format === 'csv') {
+        const csvData = generateCavalryCsv(subtitlesToExport);
+        if (!csvData || csvData.trim() === '') {
+          console.error('Generated CSV data is empty');
+          throw new Error('Generated CSV data is empty');
+        }
+        await writeTextFile(filePath, csvData);
+        console.log('CSV file saved successfully to', filePath);
       } else {
         const transcriptText = generateTranscriptTxt(subtitlesToExport, speakersToExport);
 

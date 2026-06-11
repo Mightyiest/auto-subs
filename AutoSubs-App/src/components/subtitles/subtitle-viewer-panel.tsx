@@ -38,6 +38,7 @@ import { TranscriptHistoryPopover } from "@/components/subtitles/transcript-hist
 import { useSubtitleDocument } from "@/contexts/SubtitleDocumentContext";
 import { useResolve } from "@/contexts/ResolveContext";
 import { useAdobe } from "@/contexts/AdobeContext";
+import { useCavalry } from "@/contexts/CavalryContext";
 import { useIntegration } from "@/contexts/IntegrationContext";
 import { useSettings } from "@/contexts/SettingsContext";
 import { Speaker, Template, Track } from "@/types";
@@ -503,7 +504,7 @@ interface AddToTimelineFooterProps {
   ) => Promise<void>;
   t: (key: string) => string;
   isAdding: boolean;
-  selectedIntegration?: "davinci" | "premiere" | "aftereffects";
+  selectedIntegration?: "davinci" | "premiere" | "aftereffects" | "cavalry";
 }
 
 function AddToTimelineFooter({
@@ -609,12 +610,20 @@ export function SubtitleViewerPanel({
     jumpToTime: adobeJumpToTime,
   } = useAdobe();
 
+  const {
+    timelineInfo: cavalryTimeline,
+    pushToTimeline: cavalryPush,
+  } = useCavalry();
+
   const { selectedIntegration } = useIntegration();
   const isAdobeActive =
     selectedIntegration === "premiere" ||
     selectedIntegration === "aftereffects";
+  const isCavalryActive = selectedIntegration === "cavalry";
 
-  const timelineInfo = isAdobeActive ? adobeTimeline : resolveTimeline;
+  const timelineInfo = isAdobeActive
+    ? adobeTimeline
+    : (isCavalryActive ? cavalryTimeline : resolveTimeline);
 
   const pushToTimeline = isAdobeActive
     ? (
@@ -623,9 +632,13 @@ export function SubtitleViewerPanel({
         _selectedOutputTrack?: string,
         _presetSettings?: Record<string, unknown>,
       ) => adobePush(filename)
-    : resolvePush;
+    : (isCavalryActive
+        ? (filename?: string) => cavalryPush(filename)
+        : resolvePush);
 
-  const jumpToTime = isAdobeActive ? adobeJumpToTime : resolveJumpToTime;
+  const jumpToTime = isAdobeActive
+    ? adobeJumpToTime
+    : (isCavalryActive ? async () => {} : resolveJumpToTime);
 
   const { settings } = useSettings();
   const { t } = useTranslation();
@@ -680,7 +693,7 @@ export function SubtitleViewerPanel({
   const canReplace = Boolean(searchQuery.trim());
   const isIntegrationConnected = isAdobeActive
     ? Boolean(adobeTimeline?.timelineId)
-    : Boolean(resolveTimeline?.timelineId);
+    : (isCavalryActive ? Boolean(cavalryTimeline?.timelineId) : Boolean(resolveTimeline?.timelineId));
   const shellClassName = "flex h-full min-h-0 flex-col overflow-hidden";
   const headerClassName = "shrink-0 p-3 pb-0";
 
@@ -839,10 +852,10 @@ export function SubtitleViewerPanel({
         <AddToTimelineFooter
           settings={settings}
           timelineInfo={timelineInfo}
-          templates={isAdobeActive ? [] : resolveTemplates}
-          templatesLoading={!isAdobeActive && resolveTemplatesLoading}
-          templatesLoaded={isAdobeActive || resolveTemplatesLoaded}
-          onLoadTemplates={isAdobeActive ? undefined : refreshResolveTemplates}
+          templates={(isAdobeActive || isCavalryActive) ? [] : resolveTemplates}
+          templatesLoading={(!isAdobeActive && !isCavalryActive) && resolveTemplatesLoading}
+          templatesLoaded={isAdobeActive || isCavalryActive || resolveTemplatesLoaded}
+          onLoadTemplates={(isAdobeActive || isCavalryActive) ? undefined : refreshResolveTemplates}
           layersIconRef={layersIconRef}
           onAddToTimeline={handleAddToTimeline}
           t={t}

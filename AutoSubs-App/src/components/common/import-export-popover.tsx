@@ -8,7 +8,7 @@ import { downloadDir } from "@tauri-apps/api/path"
 import { getCurrentWebview } from "@tauri-apps/api/webview"
 import { useTranslation } from "react-i18next"
 
-type ExportFormat = 'srt' | 'txt';
+type ExportFormat = 'srt' | 'txt' | 'csv';
 
 interface ImportExportPopoverProps {
     onImport: () => Promise<void>
@@ -126,6 +126,22 @@ export const ImportExportPopover = React.forwardRef<HTMLButtonElement, ImportExp
                                         <div className="text-sm font-medium">{t("importExport.exportFormats.txt.title")}</div>
                                         <div className="whitespace-normal break-words text-xs font-normal leading-4 text-muted-foreground">
                                             {t("importExport.exportFormats.txt.description")}
+                                        </div>
+                                    </div>
+                                </div>
+                            </Button>
+                            <Button
+                                variant="outline"
+                                className={`h-auto w-full justify-start border px-4 py-3 ${exportFormat === 'csv' ? 'border-primary bg-primary/10' : 'bg-transparent'}`}
+                                onClick={() => setExportFormat('csv')}
+                                type="button"
+                            >
+                                <div className="flex w-full items-start gap-3 text-left">
+                                    <FileText className="mt-0.5 size-4 shrink-0" />
+                                    <div className="min-w-0 flex-1 space-y-1">
+                                        <div className="text-sm font-medium">{t("importExport.exportFormats.csv.title")}</div>
+                                        <div className="whitespace-normal break-words text-xs font-normal leading-4 text-muted-foreground">
+                                            {t("importExport.exportFormats.csv.description")}
                                         </div>
                                     </div>
                                 </div>
